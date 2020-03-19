@@ -16,7 +16,6 @@ fn peek_min_test() {
     assert_eq!(heap.peek_min().unwrap(), v.iter().min().unwrap())
 }
 
-
 #[test]
 fn peek_max_test() {
     let v = generate_random_data_set(256);
@@ -36,11 +35,8 @@ fn pop_min_test() {
     let mut v = generate_random_data_set(256);
     let mut heap = MinMaxHeap::from(v.clone());
     assert_eq!(heap.pop_min().unwrap(), *v.iter().min().unwrap());
-    let _ = v.remove(v.iter()
-                .enumerate()
-                .map(|(x, y)| (y, x))
-                .min()
-                .unwrap().1
+    let _ = v.remove(
+        v.iter().enumerate().map(|(x, y)| (y, x)).min().unwrap().1,
     );
 
     assert_eq!(heap.len(), v.len())
@@ -51,11 +47,8 @@ fn pop_max_test() {
     let mut v = generate_random_data_set(256);
     let mut heap = MinMaxHeap::from(v.clone());
     assert_eq!(heap.pop_max().unwrap(), *v.iter().max().unwrap());
-    let _ = v.remove(v.iter()
-        .enumerate()
-        .map(|(x, y)| (y, x))
-        .max()
-        .unwrap().1
+    let _ = v.remove(
+        v.iter().enumerate().map(|(x, y)| (y, x)).max().unwrap().1,
     );
 
     assert_eq!(heap.len(), v.len())
@@ -80,7 +73,7 @@ impl Operation {
             3 => Some(PeekMax),
             4 => Some(PopMin),
             5 => Some(PopMax),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -91,10 +84,9 @@ fn random_operations_test() {
     let mut heap = MinMaxHeap::from(cor_vec.clone());
     let v = generate_random_data_set(1_024);
     for val in &v {
-        let operation = Operation::from(
-                    rand::thread_rng()
-                                .gen_range(0, 5) as i32)
-                        .unwrap();
+        let operation =
+            Operation::from(rand::thread_rng().gen_range(0, 5) as i32)
+                .unwrap();
         match operation {
             Operation::Insert => {
                 heap.push(*val);
@@ -107,23 +99,35 @@ fn random_operations_test() {
                 assert_eq!(heap.len(), cor_vec.len());
             }
             Operation::PopMax => {
-                assert_eq!(heap.pop_max().unwrap(), *cor_vec.iter().max().unwrap());
-                let _ = cor_vec.remove(cor_vec.iter()
-                    .enumerate()
-                    .map(|(x, y)| (y, x))
-                    .max()
-                    .unwrap().1
+                assert_eq!(
+                    heap.pop_max().unwrap(),
+                    *cor_vec.iter().max().unwrap()
+                );
+                let _ = cor_vec.remove(
+                    cor_vec
+                        .iter()
+                        .enumerate()
+                        .map(|(x, y)| (y, x))
+                        .max()
+                        .unwrap()
+                        .1,
                 );
 
                 assert_eq!(heap.len(), cor_vec.len())
             }
             Operation::PopMin => {
-                assert_eq!(heap.pop_min().unwrap(), *cor_vec.iter().min().unwrap());
-                let _ = cor_vec.remove(cor_vec.iter()
-                    .enumerate()
-                    .map(|(x, y)| (y, x))
-                    .min()
-                    .unwrap().1
+                assert_eq!(
+                    heap.pop_min().unwrap(),
+                    *cor_vec.iter().min().unwrap()
+                );
+                let _ = cor_vec.remove(
+                    cor_vec
+                        .iter()
+                        .enumerate()
+                        .map(|(x, y)| (y, x))
+                        .min()
+                        .unwrap()
+                        .1,
                 );
 
                 assert_eq!(heap.len(), cor_vec.len())
@@ -137,4 +141,3 @@ fn random_operations_test() {
         }
     }
 }
-

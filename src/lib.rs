@@ -41,7 +41,8 @@ fn is_on_min_level(index: usize) -> bool {
 
 impl<T: PartialOrd> std::convert::From<Vec<T>> for MinMaxHeap<T> {
     fn from(v: Vec<T>) -> Self {
-        let mut heap: MinMaxHeap<T> = MinMaxHeap::with_capacity(v.len());
+        let mut heap: MinMaxHeap<T> =
+            MinMaxHeap::with_capacity(v.len());
         for val in v {
             heap.push(val);
         }
@@ -50,18 +51,15 @@ impl<T: PartialOrd> std::convert::From<Vec<T>> for MinMaxHeap<T> {
 }
 
 impl<T: PartialOrd> MinMaxHeap<T> {
-
     /// Make a new heap.
     pub fn new() -> Self {
-        MinMaxHeap {
-            data: vec![],
-        }
+        MinMaxHeap { data: vec![] }
     }
 
     /// Make a new heap with initial capacity `len`.
     pub fn with_capacity(len: usize) -> Self {
         MinMaxHeap {
-            data: Vec::with_capacity(len)
+            data: Vec::with_capacity(len),
         }
     }
 
@@ -83,7 +81,9 @@ impl<T: PartialOrd> MinMaxHeap<T> {
 
     /// Show a minimum element from the heap.
     pub fn peek_min(&self) -> Option<&T> {
-        if self.is_empty() { return None }
+        if self.is_empty() {
+            return None;
+        }
         Some(&self.data[0])
     }
 
@@ -116,62 +116,78 @@ impl<T: PartialOrd> MinMaxHeap<T> {
             1 => self.delete_element(0),
             2 => self.delete_element(1),
             _ => {
-                let max_ind = if self.data[1] > self.data[2] {
-                    1
-                } else {
-                    2
-                };
+                let max_ind =
+                    if self.data[1] > self.data[2] { 1 } else { 2 };
                 self.delete_element(max_ind)
             }
         }
     }
-    
+
     /// Empty the heap.
     pub fn clear(&mut self) {
         self.data.clear()
     }
 
     fn do_trickle_down(&mut self, index: usize, max_level: bool) {
-        if index >= self.len() { return; }
+        if index >= self.len() {
+            return;
+        }
         let mut min_node = index;
         let left = left_child(index);
-        if left < self.len() && ((self.data[left] < self.data[min_node]) ^ max_level) { min_node = left; }
-        if left + 1 < self.len() && ((self.data[left + 1] < self.data[min_node]) ^ max_level) { min_node = left + 1; }
+        if left < self.len()
+            && ((self.data[left] < self.data[min_node]) ^ max_level)
+        {
+            min_node = left;
+        }
+        if left + 1 < self.len()
+            && ((self.data[left + 1] < self.data[min_node]) ^ max_level)
+        {
+            min_node = left + 1;
+        }
         let left_gchild = left_child(left);
         let mut i = 0;
         while (i < 4) && (left_gchild + i < self.len()) {
-            if (self.data[left_gchild + i] < self.data[min_node]) ^ max_level {
+            if (self.data[left_gchild + i] < self.data[min_node])
+                ^ max_level
+            {
                 min_node = left_gchild + i;
             }
             i += 1;
         }
-        if index == min_node { return; }
+        if index == min_node {
+            return;
+        }
         self.data.swap(index, min_node);
         if min_node - left > 1 {
-            if (self.data[parent(min_node)] < self.data[min_node]) ^ max_level {
+            if (self.data[parent(min_node)] < self.data[min_node])
+                ^ max_level
+            {
                 self.data.swap(parent(min_node), min_node);
             }
             self.do_trickle_down(min_node, max_level);
         }
     }
 
-
     fn trickle_down(&mut self, index: usize) {
-            if is_on_min_level(index) {
-                self.do_trickle_down(index, false);
-            } else {
-                self.do_trickle_down(index, true);
-            }
+        if is_on_min_level(index) {
+            self.do_trickle_down(index, false);
+        } else {
+            self.do_trickle_down(index, true);
+        }
     }
 
     fn do_bubble_up(&mut self, index: usize, max_level: bool) {
-        if index == 0 { return; }
+        if index == 0 {
+            return;
+        }
         let mut grandparent = parent(index);
         match grandparent {
             0 => (),
             _ => {
                 grandparent = parent(grandparent);
-                if (self.data[index] < self.data[grandparent]) ^ max_level {
+                if (self.data[index] < self.data[grandparent])
+                    ^ max_level
+                {
                     self.data.swap(grandparent, index);
                     self.do_bubble_up(grandparent, max_level);
                 }
@@ -181,7 +197,9 @@ impl<T: PartialOrd> MinMaxHeap<T> {
 
     fn bubble_up(&mut self, index: usize) {
         #![allow(clippy::collapsible_if)]
-        if index == 0 { return; }
+        if index == 0 {
+            return;
+        }
         if is_on_min_level(index) {
             if self.data[parent(index)] < self.data[index] {
                 self.data.swap(parent(index), index);
