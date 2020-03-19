@@ -43,7 +43,7 @@ fn pop_min_test() {
                 .unwrap().1
     );
 
-    assert_eq!(heap.size(), v.len())
+    assert_eq!(heap.len(), v.len())
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn pop_max_test() {
         .unwrap().1
     );
 
-    assert_eq!(heap.size(), v.len())
+    assert_eq!(heap.len(), v.len())
 }
 
 enum Operation {
@@ -99,12 +99,12 @@ fn random_operations_test() {
             Operation::Insert => {
                 heap.push(*val);
                 cor_vec.push(*val);
-                assert_eq!(heap.size(), cor_vec.len());
+                assert_eq!(heap.len(), cor_vec.len());
             }
             Operation::Insert2 => {
                 heap.push(*val);
                 cor_vec.push(*val);
-                assert_eq!(heap.size(), cor_vec.len());
+                assert_eq!(heap.len(), cor_vec.len());
             }
             Operation::PopMax => {
                 assert_eq!(heap.pop_max().unwrap(), *cor_vec.iter().max().unwrap());
@@ -115,7 +115,7 @@ fn random_operations_test() {
                     .unwrap().1
                 );
 
-                assert_eq!(heap.size(), cor_vec.len())
+                assert_eq!(heap.len(), cor_vec.len())
             }
             Operation::PopMin => {
                 assert_eq!(heap.pop_min().unwrap(), *cor_vec.iter().min().unwrap());
@@ -126,7 +126,7 @@ fn random_operations_test() {
                     .unwrap().1
                 );
 
-                assert_eq!(heap.size(), cor_vec.len())
+                assert_eq!(heap.len(), cor_vec.len())
             }
             Operation::PeekMax => {
                 assert_eq!(heap.peek_max().unwrap(), *cor_vec.iter().max().unwrap())

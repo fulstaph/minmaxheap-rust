@@ -1,3 +1,22 @@
+/*!
+
+A min-max heap, implemented as a way to learn some
+Rust. Heap data must be `Copy`, `Clone`, `PartialOrd`.
+
+The implementation is based on a paper by M.D Atkinson,
+J.-R. Sack and others, "[Min-Max Heaps And Generalized
+Priority
+Queues](http://akira.ruc.dk/~keld/teaching/algoritmedesign_f03/Artikler/02/Atkinson86.pdf)"
+and on the relevant
+[Wikipedia](https://en.wikipedia.org/wiki/Min-max_heap)
+article.
+
+This heap can be used as a DEPQ (Double Ended Priority
+Queue) implementation.
+
+*/
+
+/// Min-max heap struct.
 #[derive(Debug)]
 pub struct MinMaxHeap<T> {
     data: Vec<T>,
@@ -33,13 +52,15 @@ fn is_on_min_level(index: usize) -> bool {
 }
 
 impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
-    // public API
+
+    /// Make a new heap.
     pub fn new() -> Self {
         MinMaxHeap {
             data: vec![],
         }
     }
 
+    /// Make a `Vec` of elements into a heap.
     pub fn from(v: &Vec<T>) -> Self {
         let mut heap: MinMaxHeap<T> = MinMaxHeap::new();
 
@@ -54,32 +75,38 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         heap
     }
 
+    /// Make a new heap with initial capacity `len`.
     pub fn with_capacity(len: usize) -> Self {
         MinMaxHeap {
             data: Vec::with_capacity(len)
         }
     }
 
-    pub fn empty(&self) -> bool {
+    /// Test whether the heap is empty.
+    pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
-    pub fn size(&self) -> usize {
+    /// Number of elements in the heap.
+    pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// Insert an element into the heap.
     pub fn push(&mut self, value: T) {
         self.data.push(value);
-        self.bubble_up(self.size() - 1);
+        self.bubble_up(self.len() - 1);
     }
 
+    /// Show a minimum element from the heap.
     pub fn peek_min(&self) -> Option<T> {
-        if self.empty() { return None }
+        if self.is_empty() { return None }
         return Some(self.data[0].clone())
     }
 
+    /// Show a maximum element from the heap.
     pub fn peek_max(&self) -> Option<T> {
-        match self.size() {
+        match self.len() {
             0 => None,
             1 => Some(self.data[0].clone()),
             2 => Some(self.data[1].clone()),
@@ -94,8 +121,9 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         }
     }
 
+    /// Extract a minimum element from the heap.
     pub fn pop_min(&mut self) -> Option<T> {
-        match self.size() {
+        match self.len() {
             0 => None,
             _ => {
                 let min = self.data[0].clone();
@@ -105,8 +133,9 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         }
     }
 
+    /// Extract a maximum element from the heap.
     pub fn pop_max(&mut self) -> Option<T> {
-        match self.size() {
+        match self.len() {
             0 => None,
             1 => {
                 let max = self.data[0].clone();
@@ -130,21 +159,21 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
             }
         }
     }
-
-    pub fn erase(&mut self) {
+    
+    /// Empty the heap.
+    pub fn clear(&mut self) {
         self.data.clear()
     }
 
-    // private methods
-    fn _trickle_down(&mut self, index: usize, max_level: bool) {
-        if index >= self.size() { return; }
+    fn do_trickle_down(&mut self, index: usize, max_level: bool) {
+        if index >= self.len() { return; }
         let mut min_node = index;
         let left = left_child(index);
-        if left < self.size() && ((self.data[left] < self.data[min_node]) ^ max_level) { min_node = left; }
-        if left + 1 < self.size() && ((self.data[left + 1] < self.data[min_node]) ^ max_level) { min_node = left + 1; }
+        if left < self.len() && ((self.data[left] < self.data[min_node]) ^ max_level) { min_node = left; }
+        if left + 1 < self.len() && ((self.data[left + 1] < self.data[min_node]) ^ max_level) { min_node = left + 1; }
         let left_gchild = left_child(left);
         let mut i = 0;
-        while (i < 4) && (left_gchild + i < self.size()) {
+        while (i < 4) && (left_gchild + i < self.len()) {
             if (self.data[left_gchild + i] < self.data[min_node]) ^ max_level {
                 min_node = left_gchild + i;
             }
@@ -156,19 +185,20 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
             if (self.data[parent(min_node)] < self.data[min_node]) ^ max_level {
                 self.data.swap(parent(min_node), min_node);
             }
-            self._trickle_down(min_node, max_level);
+            self.do_trickle_down(min_node, max_level);
         }
     }
 
+
     fn trickle_down(&mut self, index: usize) {
             if is_on_min_level(index) {
-                self._trickle_down(index, false);
+                self.do_trickle_down(index, false);
             } else {
-                self._trickle_down(index, true);
+                self.do_trickle_down(index, true);
             }
     }
 
-    fn _bubble_up(&mut self, index: usize, max_level: bool) {
+    fn do_bubble_up(&mut self, index: usize, max_level: bool) {
         if index == 0 { return; }
         let mut grandparent = parent(index);
         match grandparent {
@@ -177,7 +207,7 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
                 grandparent = parent(grandparent);
                 if (self.data[index] < self.data[grandparent]) ^ max_level {
                     self.data.swap(grandparent, index);
-                    self._bubble_up(grandparent, max_level);
+                    self.do_bubble_up(grandparent, max_level);
                 }
             }
         }
@@ -190,24 +220,24 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
              true => {
                 if self.data[parent(index)] < self.data[index] {
                     self.data.swap(parent(index), index);
-                    self._bubble_up(parent(index), true);
+                    self.do_bubble_up(parent(index), true);
                 } else {
-                    self._bubble_up(index, false);
+                    self.do_bubble_up(index, false);
                 }
             }
             false => {
                 if self.data[parent(index)] > self.data[index] {
                     self.data.swap(parent(index), index);
-                    self._bubble_up(parent(index), false);
+                    self.do_bubble_up(parent(index), false);
                 } else {
-                    self._bubble_up(index, true);
+                    self.do_bubble_up(index, true);
                 }
             }
         }
     }
 
     fn delete_element(&mut self, index: usize) {
-        let len = self.size();
+        let len = self.len();
         if index == len - 1 {
             let _ = self.data.remove(self.data.len() - 1);
             return;
