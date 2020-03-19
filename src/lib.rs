@@ -1,10 +1,35 @@
-use crate::minmaxheap::minmaxheap::utils_funcs::{left_child, parent};
-use conditional::*;
-use std::ops::Deref;
-
 #[derive(Debug)]
 pub struct MinMaxHeap<T> {
     data: Vec<T>,
+}
+
+fn log2(mut value: usize) -> Option<usize> {
+    match value {
+        0 => None,
+        _ => {
+            let mut res = 0 as usize;
+            while value != 0 {
+                value >>= 1;
+                res += 1;
+            }
+            Some(res)
+        }
+    }
+}
+
+fn parent(index: usize) -> usize {
+    (index - 1) / 2
+}
+
+fn left_child(index: usize) -> usize {
+    2 * index + 1
+}
+
+fn is_on_min_level(index: usize) -> bool {
+    (log2(index + 1).unwrap_or_else(|| {
+        println!("can't calc log2 of 0");
+        0
+    }) % 2) == 1
 }
 
 impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
@@ -59,9 +84,11 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
             1 => Some(self.data[0].clone()),
             2 => Some(self.data[1].clone()),
             _ => {
-                let max = conditional!(self.data[1] > self.data[2]?
-                    self.data[1].clone() : self.data[2].clone()
-                );
+                let max = if self.data[1] > self.data[2] {
+                    self.data[1].clone()
+                } else {
+                    self.data[2].clone()
+                };
                 Some(max)
             }
         }
@@ -92,7 +119,11 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
                 Some(max)
             }
             _ => {
-                let max_ind = conditional!(self.data[1] > self.data[2]? 1 : 2);
+                let max_ind = if self.data[1] > self.data[2] {
+                    1
+                } else {
+                    2
+                };
                 let max = self.data[max_ind].clone();
                 self.delete_element(max_ind);
                 Some(max)
@@ -122,15 +153,15 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         if index == min_node { return; }
         self.data.swap(index, min_node);
         if min_node - left > 1 {
-            if (self.data[utils_funcs::parent(min_node)] < self.data[min_node]) ^ max_level {
-                self.data.swap(utils_funcs::parent(min_node), min_node);
+            if (self.data[parent(min_node)] < self.data[min_node]) ^ max_level {
+                self.data.swap(parent(min_node), min_node);
             }
             self._trickle_down(min_node, max_level);
         }
     }
 
     fn trickle_down(&mut self, index: usize) {
-            if utils_funcs::is_on_min_level(index) {
+            if is_on_min_level(index) {
                 self._trickle_down(index, false);
             } else {
                 self._trickle_down(index, true);
@@ -154,7 +185,7 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
 
     fn bubble_up(&mut self, index: usize) {
         if index == 0 { return; }
-        let condition = utils_funcs::is_on_min_level(index);
+        let condition = is_on_min_level(index);
         match condition {
              true => {
                 if self.data[parent(index)] < self.data[index] {
@@ -186,47 +217,5 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         self.data.swap(index, len - 1);
         let _ = self.data.remove(self.data.len() - 1);
         self.trickle_down(index);
-    }
-}
-
-// helper functions
-
-mod utils_funcs {
-
-    pub fn log2(mut value: usize) -> Option<usize> {
-        match value {
-            0 => None,
-            _ => {
-                let mut res = 0 as usize;
-                while value != 0 {
-                    value >>= 1;
-                    res += 1;
-                }
-                Some(res)
-            }
-        }
-    }
-
-    pub fn parent(index: usize) -> usize {
-        (index - 1) / 2
-    }
-
-    pub fn left_child(index: usize) -> usize {
-        2 * index + 1
-    }
-
-    pub fn right_child(index: usize) -> usize {
-        2 * index + 2
-    }
-
-    pub fn is_on_min_level(index: usize) -> bool {
-        (log2(index + 1).unwrap_or_else(|| {
-            println!("can't calc log2 of 0");
-            0
-        }) % 2) == 1
-    }
-
-    pub fn is_on_max_level(index: usize) -> bool {
-        !is_on_min_level(index)
     }
 }

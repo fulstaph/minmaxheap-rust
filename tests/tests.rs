@@ -1,6 +1,13 @@
-use crate::minmaxheap::minmaxheap::MinMaxHeap;
+use minmaxheap::*;
 use rand::Rng;
-use crate::minmaxheap::minmaxheap_tests::Operation::{Insert, Insert2, PeekMin, PeekMax, PopMax, PopMin};
+
+fn generate_random_data_set(size: usize) -> Vec<i64> {
+    let mut v: Vec<i64> = Vec::with_capacity(size);
+    for _ in 0..size {
+        v.push(rand::random())
+    }
+    v
+}
 
 #[test]
 fn peek_min_test() {
@@ -54,8 +61,32 @@ fn pop_max_test() {
     assert_eq!(heap.size(), v.len())
 }
 
+enum Operation {
+    Insert,
+    Insert2,
+    PeekMin,
+    PeekMax,
+    PopMin,
+    PopMax,
+}
+use Operation::*;
+
+impl Operation {
+    pub fn from(num: i32) -> Option<Operation> {
+        match num {
+            0 => Some(Insert),
+            1 => Some(Insert2),
+            2 => Some(PeekMin),
+            3 => Some(PeekMax),
+            4 => Some(PopMin),
+            5 => Some(PopMax),
+            _ => None
+        }
+    }
+}
+
 #[test]
-fn weird_test() {
+fn random_operations_test() {
     let mut cor_vec = generate_random_data_set(8);
     let mut heap = MinMaxHeap::from(&cor_vec);
     let v = generate_random_data_set(1_024);
@@ -107,35 +138,3 @@ fn weird_test() {
     }
 }
 
-// helpers funcs and structs
-
-enum Operation {
-    Insert,
-    Insert2,
-    PeekMin,
-    PeekMax,
-    PopMin,
-    PopMax,
-}
-
-impl Operation {
-    pub fn from(num: i32) -> Option<Operation> {
-        match num {
-            0 => Some(Insert),
-            1 => Some(Insert2),
-            2 => Some(PeekMin),
-            3 => Some(PeekMax),
-            4 => Some(PopMin),
-            5 => Some(PopMax),
-            _ => None
-        }
-    }
-}
-
-fn generate_random_data_set(size: usize) -> Vec<i64> {
-    let mut v: Vec<i64> = Vec::with_capacity(size);
-    for _ in 0..size {
-        v.push(rand::random())
-    }
-    v
-}
