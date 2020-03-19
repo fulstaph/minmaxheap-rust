@@ -22,18 +22,9 @@ pub struct MinMaxHeap<T> {
     data: Vec<T>,
 }
 
-fn log2(mut value: usize) -> Option<usize> {
-    match value {
-        0 => None,
-        _ => {
-            let mut res = 0 as usize;
-            while value != 0 {
-                value >>= 1;
-                res += 1;
-            }
-            Some(res)
-        }
-    }
+fn log2(value: usize) -> u32 {
+    assert!(value > 0);
+    8 * std::mem::size_of::<usize>() as u32 - value.leading_zeros()
 }
 
 fn parent(index: usize) -> usize {
@@ -45,10 +36,7 @@ fn left_child(index: usize) -> usize {
 }
 
 fn is_on_min_level(index: usize) -> bool {
-    (log2(index + 1).unwrap_or_else(|| {
-        println!("can't calc log2 of 0");
-        0
-    }) % 2) == 1
+    log2(index + 1) % 2 == 1
 }
 
 impl<T: PartialOrd> std::convert::From<Vec<T>> for MinMaxHeap<T> {
