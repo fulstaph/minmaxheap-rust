@@ -1,7 +1,7 @@
 /*!
 
 A min-max heap, implemented as a way to learn some
-Rust. Heap data must be `Copy`, `Clone`, `PartialOrd`.
+Rust. Heap data must be `PartialOrd`.
 
 The implementation is based on a paper by M.D Atkinson,
 J.-R. Sack and others, "[Min-Max Heaps And Generalized
@@ -51,28 +51,23 @@ fn is_on_min_level(index: usize) -> bool {
     }) % 2) == 1
 }
 
-impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
+impl<T: PartialOrd> std::convert::From<Vec<T>> for MinMaxHeap<T> {
+    fn from(v: Vec<T>) -> Self {
+        let mut heap: MinMaxHeap<T> = MinMaxHeap::with_capacity(v.len());
+        for val in v {
+            heap.push(val);
+        }
+        heap
+    }
+}
+
+impl<T: PartialOrd> MinMaxHeap<T> {
 
     /// Make a new heap.
     pub fn new() -> Self {
         MinMaxHeap {
             data: vec![],
         }
-    }
-
-    /// Make a `Vec` of elements into a heap.
-    pub fn from(v: &Vec<T>) -> Self {
-        let mut heap: MinMaxHeap<T> = MinMaxHeap::new();
-
-        // v.map(|val| {
-        //     heap.push(val)
-        // });
-
-        for val in v.iter() {
-            heap.push(*val);
-        }
-
-        heap
     }
 
     /// Make a new heap with initial capacity `len`.
@@ -99,22 +94,22 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
     }
 
     /// Show a minimum element from the heap.
-    pub fn peek_min(&self) -> Option<T> {
+    pub fn peek_min(&self) -> Option<&T> {
         if self.is_empty() { return None }
-        return Some(self.data[0].clone())
+        return Some(&self.data[0])
     }
 
     /// Show a maximum element from the heap.
-    pub fn peek_max(&self) -> Option<T> {
+    pub fn peek_max(&self) -> Option<&T> {
         match self.len() {
             0 => None,
-            1 => Some(self.data[0].clone()),
-            2 => Some(self.data[1].clone()),
+            1 => Some(&self.data[0]),
+            2 => Some(&self.data[1]),
             _ => {
                 let max = if self.data[1] > self.data[2] {
-                    self.data[1].clone()
+                    &self.data[1]
                 } else {
-                    self.data[2].clone()
+                    &self.data[2]
                 };
                 Some(max)
             }
@@ -123,39 +118,22 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
 
     /// Extract a minimum element from the heap.
     pub fn pop_min(&mut self) -> Option<T> {
-        match self.len() {
-            0 => None,
-            _ => {
-                let min = self.data[0].clone();
-                self.delete_element(0);
-                Some(min)
-            }
-        }
+        self.delete_element(0)
     }
 
     /// Extract a maximum element from the heap.
     pub fn pop_max(&mut self) -> Option<T> {
         match self.len() {
             0 => None,
-            1 => {
-                let max = self.data[0].clone();
-                self.delete_element(0);
-                Some(max)
-            }
-            2 => {
-                let max = self.data[1].clone();
-                self.delete_element(1);
-                Some(max)
-            }
+            1 => self.delete_element(0),
+            2 => self.delete_element(1),
             _ => {
                 let max_ind = if self.data[1] > self.data[2] {
                     1
                 } else {
                     2
                 };
-                let max = self.data[max_ind].clone();
-                self.delete_element(max_ind);
-                Some(max)
+                self.delete_element(max_ind)
             }
         }
     }
@@ -236,16 +214,17 @@ impl<T: std::clone::Clone + PartialOrd + Copy> MinMaxHeap<T> {
         }
     }
 
-    fn delete_element(&mut self, index: usize) {
+    fn delete_element(&mut self, index: usize) -> Option<T> {
         let len = self.len();
-        if index == len - 1 {
-            let _ = self.data.remove(self.data.len() - 1);
-            return;
+        if index >= len {
+            return None;
         }
-        if index >= len { return; }
-
+        if index == len - 1 {
+            return Some(self.data.remove(self.data.len() - 1));
+        }
         self.data.swap(index, len - 1);
-        let _ = self.data.remove(self.data.len() - 1);
+        let result = self.data.remove(self.data.len() - 1);
         self.trickle_down(index);
+        Some(result)
     }
 }

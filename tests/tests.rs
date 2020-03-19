@@ -12,21 +12,21 @@ fn generate_random_data_set(size: usize) -> Vec<i64> {
 #[test]
 fn peek_min_test() {
     let v = generate_random_data_set(256);
-    let heap = MinMaxHeap::from(&v);
-    assert_eq!(heap.peek_min().unwrap(), *v.iter().min().unwrap())
+    let heap = MinMaxHeap::from(v.clone());
+    assert_eq!(heap.peek_min().unwrap(), v.iter().min().unwrap())
 }
 
 
 #[test]
 fn peek_max_test() {
     let v = generate_random_data_set(256);
-    let heap = MinMaxHeap::from(&v);
-    assert_eq!(heap.peek_max().unwrap(), *v.iter().max().unwrap())
+    let heap = MinMaxHeap::from(v.clone());
+    assert_eq!(heap.peek_max().unwrap(), v.iter().max().unwrap())
 }
 
 #[test]
 fn pop_last_test() {
-    let mut heap = MinMaxHeap::from(&vec![1]);
+    let mut heap = MinMaxHeap::from(vec![1]);
     let _ = heap.pop_min();
     assert_eq!(heap.pop_min(), None)
 }
@@ -34,7 +34,7 @@ fn pop_last_test() {
 #[test]
 fn pop_min_test() {
     let mut v = generate_random_data_set(256);
-    let mut heap = MinMaxHeap::from(&v);
+    let mut heap = MinMaxHeap::from(v.clone());
     assert_eq!(heap.pop_min().unwrap(), *v.iter().min().unwrap());
     let _ = v.remove(v.iter()
                 .enumerate()
@@ -49,7 +49,7 @@ fn pop_min_test() {
 #[test]
 fn pop_max_test() {
     let mut v = generate_random_data_set(256);
-    let mut heap = MinMaxHeap::from(&v);
+    let mut heap = MinMaxHeap::from(v.clone());
     assert_eq!(heap.pop_max().unwrap(), *v.iter().max().unwrap());
     let _ = v.remove(v.iter()
         .enumerate()
@@ -88,7 +88,7 @@ impl Operation {
 #[test]
 fn random_operations_test() {
     let mut cor_vec = generate_random_data_set(8);
-    let mut heap = MinMaxHeap::from(&cor_vec);
+    let mut heap = MinMaxHeap::from(cor_vec.clone());
     let v = generate_random_data_set(1_024);
     for val in &v {
         let operation = Operation::from(
@@ -129,10 +129,10 @@ fn random_operations_test() {
                 assert_eq!(heap.len(), cor_vec.len())
             }
             Operation::PeekMax => {
-                assert_eq!(heap.peek_max().unwrap(), *cor_vec.iter().max().unwrap())
+                assert_eq!(heap.peek_max(), cor_vec.iter().max())
             }
             Operation::PeekMin => {
-                assert_eq!(heap.peek_min().unwrap(), *cor_vec.iter().min().unwrap())
+                assert_eq!(heap.peek_min(), cor_vec.iter().min())
             }
         }
     }
