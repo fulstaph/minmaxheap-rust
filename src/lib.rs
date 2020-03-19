@@ -17,7 +17,7 @@ Queue) implementation.
 */
 
 /// Min-max heap struct.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct MinMaxHeap<T> {
     data: Vec<T>,
 }
@@ -84,7 +84,7 @@ impl<T: PartialOrd> MinMaxHeap<T> {
     /// Show a minimum element from the heap.
     pub fn peek_min(&self) -> Option<&T> {
         if self.is_empty() { return None }
-        return Some(&self.data[0])
+        Some(&self.data[0])
     }
 
     /// Show a maximum element from the heap.
@@ -168,7 +168,7 @@ impl<T: PartialOrd> MinMaxHeap<T> {
         if index == 0 { return; }
         let mut grandparent = parent(index);
         match grandparent {
-            0 => { return; }
+            0 => (),
             _ => {
                 grandparent = parent(grandparent);
                 if (self.data[index] < self.data[grandparent]) ^ max_level {
@@ -180,24 +180,21 @@ impl<T: PartialOrd> MinMaxHeap<T> {
     }
 
     fn bubble_up(&mut self, index: usize) {
+        #![allow(clippy::collapsible_if)]
         if index == 0 { return; }
-        let condition = is_on_min_level(index);
-        match condition {
-             true => {
-                if self.data[parent(index)] < self.data[index] {
-                    self.data.swap(parent(index), index);
-                    self.do_bubble_up(parent(index), true);
-                } else {
-                    self.do_bubble_up(index, false);
-                }
+        if is_on_min_level(index) {
+            if self.data[parent(index)] < self.data[index] {
+                self.data.swap(parent(index), index);
+                self.do_bubble_up(parent(index), true);
+            } else {
+                self.do_bubble_up(index, false);
             }
-            false => {
-                if self.data[parent(index)] > self.data[index] {
-                    self.data.swap(parent(index), index);
-                    self.do_bubble_up(parent(index), false);
-                } else {
-                    self.do_bubble_up(index, true);
-                }
+        } else {
+            if self.data[parent(index)] > self.data[index] {
+                self.data.swap(parent(index), index);
+                self.do_bubble_up(parent(index), false);
+            } else {
+                self.do_bubble_up(index, true);
             }
         }
     }
