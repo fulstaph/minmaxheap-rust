@@ -1,11 +1,8 @@
 [package]
-name = "min-max-heap"
+name = "minmaxheap"
 version = "0.1.0"
 authors = ["fulstaph <bokovikov.g>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-conditional = "0.1.1"
+[dev-dependencies]
 rand = "^0.7.3"
